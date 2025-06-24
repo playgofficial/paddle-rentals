@@ -95,7 +95,7 @@
   </style>
 </head>
 <body>
-  <h1 style="padding-top:2rem;">PLAY-G°</h1>
+  <h1 style="padding-top:2rem;">🏓 PLAY-G° x PicklePro</h1>
   <p>Rent your Pickleball gear hassle-free</p>
 
   <div class="container">
@@ -136,25 +136,28 @@
     function submitRental(event) {
       event.preventDefault();
 
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
       const equipment = document.getElementById("equipment").value;
       const quantity = document.getElementById("quantity").value;
-      const total = quantity * 50;
 
+      const total = quantity * 50;
       document.getElementById("totalDisplay").innerText = `Total: ₹${total}`;
 
       fetch("https://script.google.com/macros/s/AKfycbxEc9x4f5GwQM4WsMb_oXuk-SeF-1PBLAFow53Tc8daGxRvaYSfI8YcbTbxqbmVPCy9/exec", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ name, phone, equipment, quantity })
+      }).then(() => {
+        showToast(`Booking confirmed for ₹${total} 🧾`);
+        document.querySelector("form").reset();
+        document.getElementById("totalDisplay").innerText = "Total: ₹0";
+      }).catch(() => {
+        showToast("Error submitting form. Try again.");
       });
-
-      showToast(`Booking confirmed for ₹${total} 🧾`);
-      document.querySelector("form").reset();
-      document.getElementById("totalDisplay").innerText = "Total: ₹0";
     }
   </script>
 </body>
 </html>
-
