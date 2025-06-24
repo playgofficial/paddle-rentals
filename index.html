@@ -140,31 +140,40 @@
       const phone = document.getElementById("phone").value.trim();
       const equipment = document.getElementById("equipment").value;
       const quantity = document.getElementById("quantity").value;
-
       const total = quantity * 50;
+
       document.getElementById("totalDisplay").innerText = `Total: ₹${total}`;
 
-      fetch("https://script.google.com/macros/s/AKfycbxEc9x4f5GwQM4WsMb_oXuk-SeF-1PBLAFow53Tc8daGxRvaYSfI8YcbTbxqbmVPCy9/exec", {
+      const formData = new URLSearchParams();
+      formData.append("name", name);
+      formData.append("phone", phone);
+      formData.append("equipment", equipment);
+      formData.append("quantity", quantity);
+
+      fetch("https://script.google.com/macros/s/AKfycbykeDgh0ODWHL_3zSCyEeoLT7hJarmNPfXmTQC3m4kjyIXYtTyzf09pGncutj8ENI5-/exec", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, equipment, quantity })
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
       })
       .then(res => res.text())
       .then(response => {
-        if (response.includes("Success")) {
-          showToast(`Booking confirmed for ₹${total} 🧾`);
-          document.querySelector("form").reset();
-          document.getElementById("totalDisplay").innerText = "Total: ₹0";
-        } else {
-          showToast("Server error: " + response);
-        }
+        showToast(`Booking confirmed for ₹${total} ✅`);
+        document.querySelector("form").reset();
+        document.getElementById("totalDisplay").innerText = "Total: ₹0";
       })
       .catch(err => {
         showToast("Error submitting form 😥");
         console.error("Fetch error:", err);
       });
     }
+
+    document.getElementById("quantity").addEventListener("change", function() {
+      const quantity = this.value;
+      const totalDisplay = document.getElementById("totalDisplay");
+      totalDisplay.innerText = quantity ? `Total: ₹${quantity * 50}` : "Total: ₹0";
+    });
   </script>
 </body>
 </html>
+
 
