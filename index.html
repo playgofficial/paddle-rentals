@@ -146,18 +146,20 @@
 
       fetch("https://script.google.com/macros/s/AKfycbxEc9x4f5GwQM4WsMb_oXuk-SeF-1PBLAFow53Tc8daGxRvaYSfI8YcbTbxqbmVPCy9/exec", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone, equipment, quantity })
-      }).then(() => {
+      })
+      .then(res => {
         showToast(`Booking confirmed for ₹${total} 🧾`);
         document.querySelector("form").reset();
         document.getElementById("totalDisplay").innerText = "Total: ₹0";
-      }).catch(() => {
-        showToast("Error submitting form. Try again.");
+      })
+      .catch(err => {
+        showToast("Error submitting form 😥");
+        console.error("Fetch error:", err);
       });
     }
   </script>
 </body>
 </html>
+
