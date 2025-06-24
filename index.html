@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pickleball Rental</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(-45deg, #ff3c00, #ff8800, #ff3c00, #ff6600);
+      background-size: 300% 300%;
+      animation: vibrantBG 12s ease infinite;
+      color: white;
+      text-align: center;
+    }
+
+    @keyframes vibrantBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background-color: rgba(255,255,255,0.08);
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 1.5rem;
+      font-size: 1rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 0.5rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.9);
+      color: #333;
+    }
+
+    button {
+      margin-top: 2rem;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background-color: white;
+      color: #ff3c00;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ffd6c2;
+    }
+
+    .total {
+      margin-top: 1.2rem;
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #fff5cc;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="padding-top:2rem;">PLAY-G°</h1>
+  <p>Rent your Pickleball gear hassle-free</p>
+
+  <div class="container">
+    <form onsubmit="submitRental(event)">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" required />
+
+      <label for="equipment">Equipment</label>
+      <input type="text" id="equipment" value="Pickleball" readonly />
+
+      <label for="quantity">Quantity (Max 4)</label>
+      <select id="quantity" required>
+        <option value="">-- Select --</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+
+      <div class="total" id="totalDisplay">Total: ₹0</div>
+      <button type="submit">Proceed to Pay</button>
+    </form>
+  </div>
+
+  <div class="toast" id="toast">Booking confirmed!</div>
+
+  <script>
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function submitRental(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const equipment = document.getElementById("equipment").value;
+      const quantity = document.getElementById("quantity").value;
+
+      const total = quantity * 50;
+      document.getElementById("totalDisplay").innerText = `Total: ₹${total}`;
+
+      fetch("https://script.google.com/macros/s/AKfycbxEc9x4f5GwQM4WsMb_oXuk-SeF-1PBLAFow53Tc8daGxRvaYSfI8YcbTbxqbmVPCy9/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, equipment, quantity })
+      });
+
+      showToast(`Booking confirmed for ₹${total} 🧾`);
+      document.querySelector("form").reset();
+      document.getElementById("totalDisplay").innerText = "Total: ₹0";
+    }
+  </script>
+</body>
+</html>
