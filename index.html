@@ -23,7 +23,7 @@
     }
 
     .container {
-      max-width: 400px;
+      max-width: 420px;
       margin: 3rem auto;
       padding: 2rem;
       background-color: rgba(255,255,255,0.08);
@@ -31,17 +31,10 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.3);
     }
 
-    label {
-      display: block;
-      text-align: left;
-      margin-top: 1.5rem;
-      font-size: 1rem;
-    }
-
     input, select {
       width: 100%;
       padding: 12px;
-      margin-top: 0.5rem;
+      margin-top: 0.8rem;
       border: none;
       border-radius: 10px;
       font-size: 1rem;
@@ -49,8 +42,14 @@
       color: #333;
     }
 
+    input[type="file"] {
+      background: none;
+      color: white;
+      padding-left: 0;
+    }
+
     button {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       width: 100%;
       padding: 14px;
       border: none;
@@ -67,110 +66,157 @@
       background-color: #ffd6c2;
     }
 
-    .total {
+    .qr {
+      width: 200px;
+      border-radius: 10px;
       margin-top: 1.2rem;
-      font-weight: bold;
-      font-size: 1.3rem;
-      color: #fff5cc;
     }
 
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease-in-out;
+    .id-box {
+      background: rgba(0,0,0,0.3);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1.2rem;
+      font-size: 1.1rem;
     }
 
-    .toast.show {
-      opacity: 1;
+    .hidden {
+      display: none;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 1rem;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      color: #fff9d4;
     }
   </style>
 </head>
 <body>
-  <h1 style="padding-top:2rem;"> PLAY-G°</h1>
+
+  <h1 style="padding-top:2rem;">🏓 PLAY-G° x PicklePro</h1>
   <p>Rent your Pickleball gear hassle-free</p>
 
-  <div class="container">
-    <form onsubmit="submitRental(event)">
-      <label for="name">Your Name</label>
+  <!-- Booking Page -->
+  <div class="container" id="bookingPage">
+    <form id="bookingForm">
+      <label>Name</label>
       <input type="text" id="name" required />
 
-      <label for="phone">Phone Number</label>
+      <label>Phone Number</label>
       <input type="tel" id="phone" required />
 
-      <label for="equipment">Equipment</label>
-      <input type="text" id="equipment" value="Pickleball" readonly />
-
-      <label for="quantity">Quantity (Max 4)</label>
+      <label>Quantity</label>
       <select id="quantity" required>
         <option value="">-- Select --</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option>
       </select>
 
-      <div class="total" id="totalDisplay">Total: ₹0</div>
+      <div class="note" id="totalDisplay">Total: ₹0</div>
+
       <button type="submit">Proceed to Pay</button>
     </form>
   </div>
 
-  <div class="toast" id="toast">Booking confirmed!</div>
+  <!-- QR + Upload Page -->
+  <div class="container hidden" id="qrPage">
+    <h2>✅ Booking Received!</h2>
+    <p>Please scan the QR below to pay ₹<span id="qrPrice">0</span></p>
+    <img src="data:image/jpeg;base64,[YOUR_QR_BASE64_HERE]" class="qr" alt="QR Code" />
+    <p class="note">Include this Booking ID in payment note:</p>
+    <div class="id-box" id="bookingId">#----</div>
+
+    <form id="proofForm">
+      <label style="margin-top:1.2rem;">Upload GPay Screenshot</label>
+      <input type="file" id="paymentProof" accept="image/*" required />
+      <button type="submit">Submit Screenshot</button>
+    </form>
+  </div>
 
   <script>
-    function showToast(message) {
-      const toast = document.getElementById("toast");
-      toast.innerText = message;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 3000);
-    }
+    const bookingForm = document.getElementById("bookingForm");
+    const proofForm = document.getElementById("proofForm");
+    const bookingPage = document.getElementById("bookingPage");
+    const qrPage = document.getElementById("qrPage");
+    const qrPriceEl = document.getElementById("qrPrice");
+    const bookingIdEl = document.getElementById("bookingId");
+    const quantitySelect = document.getElementById("quantity");
+    const totalDisplay = document.getElementById("totalDisplay");
 
-    function submitRental(event) {
-      event.preventDefault();
+    let currentBookingId = "";
 
+    quantitySelect.addEventListener("change", () => {
+      const qty = quantitySelect.value;
+      totalDisplay.innerText = qty ? `Total: ₹${qty * 50}` : "Total: ₹0";
+    });
+
+    bookingForm.addEventListener("submit", function(e) {
+      e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
-      const equipment = document.getElementById("equipment").value;
-      const quantity = document.getElementById("quantity").value;
-      const total = quantity * 50;
+      const qty = document.getElementById("quantity").value;
+      const total = qty * 50;
 
-      document.getElementById("totalDisplay").innerText = `Total: ₹${total}`;
+      currentBookingId = "PB" + phone.slice(-4) + "-" + Date.now().toString().slice(-5);
 
       const formData = new URLSearchParams();
       formData.append("name", name);
       formData.append("phone", phone);
-      formData.append("equipment", equipment);
-      formData.append("quantity", quantity);
+      formData.append("equipment", "Pickleball");
+      formData.append("quantity", qty);
 
-      fetch("https://script.google.com/macros/s/AKfycbykeDgh0ODWHL_3zSCyEeoLT7hJarmNPfXmTQC3m4kjyIXYtTyzf09pGncutj8ENI5-/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: formData.toString()
       })
-      .then(res => res.text())
+      .then(r => r.text())
       .then(response => {
-        showToast(`Booking confirmed for ₹${total} ✅`);
-        document.querySelector("form").reset();
-        document.getElementById("totalDisplay").innerText = "Total: ₹0";
+        if (response.toLowerCase().includes("success")) {
+          qrPriceEl.innerText = total;
+          bookingIdEl.innerText = currentBookingId;
+          bookingPage.classList.add("hidden");
+          qrPage.classList.remove("hidden");
+        } else {
+          alert("Booking failed: " + response);
+        }
       })
       .catch(err => {
-        showToast("Error submitting form 😥");
-        console.error("Fetch error:", err);
+        console.error(err);
+        alert("Submission error");
       });
-    }
+    });
 
-    document.getElementById("quantity").addEventListener("change", function() {
-      const quantity = this.value;
-      const totalDisplay = document.getElementById("totalDisplay");
-      totalDisplay.innerText = quantity ? `Total: ₹${quantity * 50}` : "Total: ₹0";
+    proofForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const file = document.getElementById("paymentProof").files[0];
+      if (!file) return alert("Please choose a screenshot");
+
+      const reader = new FileReader();
+      reader.onload = function() {
+        const base64Image = reader.result.split(",")[1];
+        const payload = new URLSearchParams();
+        payload.append("bookingId", currentBookingId);
+        payload.append("screenshot", base64Image);
+
+        fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
+          method: "POST",
+          headers: {"Content-Type": "application/x-www-form-urlencoded"},
+          body: payload.toString()
+        })
+        .then(res => res.text())
+        .then(resp => alert("✅ Screenshot uploaded successfully!"))
+        .catch(err => {
+          console.error(err);
+          alert("Upload failed");
+        });
+      };
+      reader.readAsDataURL(file);
     });
   </script>
 </body>
