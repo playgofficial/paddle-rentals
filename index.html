@@ -45,7 +45,6 @@
     input[type="file"] {
       background: none;
       color: white;
-      padding-left: 0;
     }
 
     button {
@@ -80,29 +79,22 @@
       font-size: 1.1rem;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    label {
-      display: block;
-      text-align: left;
-      margin-top: 1rem;
-    }
-
     .note {
       font-size: 0.9rem;
       margin-top: 0.5rem;
       color: #fff9d4;
     }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
 
-  <h1 style="padding-top:2rem;"> PLAY-G°</h1>
+  <h1 style="padding-top:2rem;">🏓 PLAY-G°</h1>
   <p>Rent your Pickleball gear hassle-free</p>
 
-  <!-- Booking Page -->
   <div class="container" id="bookingPage">
     <form id="bookingForm">
       <label>Name</label>
@@ -110,7 +102,7 @@
 
       <label>Phone Number</label>
       <input type="tel" id="phone" maxlength="10" pattern="[0-9]{10}" required 
-             oninput="if(this.value.length>10)this.value=this.value.slice(0,10);" />
+             oninput="this.value = this.value.slice(0, 10);" />
 
       <label>Quantity</label>
       <select id="quantity" required>
@@ -126,14 +118,9 @@
     <button onclick="showReturnPage()">🔁 Return Your Gear</button>
   </div>
 
-  <!-- QR + Upload Page -->
   <div class="container hidden" id="qrPage">
     <h2>Scan to Pay</h2>
-    <img 
-      src="https://i.ibb.co/F4L1wTSQ/upscalemedia-transformed-2.png" 
-      class="qr" 
-      alt="QR Code" />
-
+    <img src="https://i.ibb.co/F4L1wTSQ/upscalemedia-transformed-2.png" class="qr" alt="QR Code" />
     <p class="note">UPI ID: <strong>maviayush29-1@okaxis</strong></p>
     <p class="note">Use the Booking ID (emailed to you) in the UPI note</p>
     <div class="id-box" id="bookingId">#----</div>
@@ -145,7 +132,6 @@
     </form>
   </div>
 
-  <!-- Return Page -->
   <div class="container hidden" id="returnPage">
     <h2>🔁 Return Gear</h2>
     <form onsubmit="submitReturn(event)">
@@ -176,14 +162,37 @@
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
-      if (phone.length !== 10) return alert("Please enter a valid 10-digit phone number.");
       const qty = document.getElementById("quantity").value;
+      if (phone.length !== 10) return alert("Please enter a valid 10-digit phone number.");
+      const total = qty * 50;
 
       currentBookingId = "PB" + phone.slice(-4) + "-" + Date.now().toString().slice(-5);
       bookingIdEl.innerText = currentBookingId;
 
-      bookingPage.classList.add("hidden");
-      qrPage.classList.remove("hidden");
+      const formData = new URLSearchParams();
+      formData.append("name", name);
+      formData.append("phone", phone);
+      formData.append("equipment", "Pickleball");
+      formData.append("quantity", qty);
+
+      fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
+      })
+      .then(r => r.text())
+      .then(response => {
+        if (response.toLowerCase().includes("success")) {
+          bookingPage.classList.add("hidden");
+          qrPage.classList.remove("hidden");
+        } else {
+          alert("Booking failed: " + response);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Booking submission failed");
+      });
     });
 
     proofForm.addEventListener("submit", function(e) {
@@ -200,7 +209,7 @@
 
         fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
           method: "POST",
-          headers: {"Content-Type": "application/x-www-form-urlencoded"},
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: payload.toString()
         })
         .then(res => res.text())
@@ -215,6 +224,13 @@
 
     function showReturnPage() {
       bookingPage.classList.add("hidden");
+      qrPage.classList.add("hidden");
+      returnPage.classList.remove("hidden");
+    }
+
+        function showReturnPage() {
+      bookingPage.classList.add("hidden");
+      qrPage.classList.add("hidden");
       returnPage.classList.remove("hidden");
     }
 
@@ -244,3 +260,4 @@
   </script>
 </body>
 </html>
+
