@@ -99,7 +99,7 @@
 </head>
 <body>
 
-  <h1 style="padding-top:2rem;">🏓 PLAY-G° x PicklePro</h1>
+  <h1 style="padding-top:2rem;"> PLAY-G°</h1>
   <p>Rent your Pickleball gear hassle-free</p>
 
   <!-- Booking Page -->
@@ -198,7 +198,7 @@
         payload.append("bookingId", currentBookingId);
         payload.append("screenshot", base64Image);
 
-        fetch("https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
           method: "POST",
           headers: {"Content-Type": "application/x-www-form-urlencoded"},
           body: payload.toString()
@@ -223,7 +223,7 @@
       const id = document.getElementById("returnId").value.trim();
       if (!id) return alert("Please enter a Booking ID");
 
-      fetch("https://script.google.com/macros/s/YOUR_DEPLOYED_WEB_APP_URL/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ checkId: id })
