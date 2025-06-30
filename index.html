@@ -99,7 +99,7 @@
 </head>
 <body>
 
-  <h1 style="padding-top:2rem;"> PLAY-G°</h1>
+  <h1 style="padding-top:2rem;">🏓 PLAY-G° x PicklePro</h1>
   <p>Rent your Pickleball gear hassle-free</p>
 
   <!-- Booking Page -->
@@ -129,9 +129,13 @@
   <!-- QR + Upload Page -->
   <div class="container hidden" id="qrPage">
     <h2>Scan to Pay</h2>
-    <img src="gpay.jpg" class="qr" alt="QR Code" />
+    <img 
+      src="https://i.ibb.co/F4L1wTSQ/upscalemedia-transformed-2.png" 
+      class="qr" 
+      alt="QR Code" />
+
     <p class="note">UPI ID: <strong>maviayush29-1@okaxis</strong></p>
-    <p class="note">Use the Booking ID (sent via email) in your payment note</p>
+    <p class="note">Use the Booking ID (emailed to you) in the UPI note</p>
     <div class="id-box" id="bookingId">#----</div>
 
     <form id="proofForm">
@@ -157,7 +161,6 @@
     const bookingPage = document.getElementById("bookingPage");
     const qrPage = document.getElementById("qrPage");
     const returnPage = document.getElementById("returnPage");
-    const qrPriceEl = document.getElementById("qrPrice");
     const bookingIdEl = document.getElementById("bookingId");
     const quantitySelect = document.getElementById("quantity");
     const totalDisplay = document.getElementById("totalDisplay");
@@ -166,7 +169,7 @@
 
     quantitySelect.addEventListener("change", () => {
       const qty = quantitySelect.value;
-      totalDisplay.innerText = qty ? `Total: ₹${qty * 50}` : "Total: ₹0";
+      totalDisplay.innerText = qty ? Total: ₹${qty * 50} : "Total: ₹0";
     });
 
     bookingForm.addEventListener("submit", function(e) {
@@ -175,13 +178,10 @@
       const phone = document.getElementById("phone").value.trim();
       if (phone.length !== 10) return alert("Please enter a valid 10-digit phone number.");
       const qty = document.getElementById("quantity").value;
-      const total = qty * 50;
 
       currentBookingId = "PB" + phone.slice(-4) + "-" + Date.now().toString().slice(-5);
+      bookingIdEl.innerText = currentBookingId;
 
-      // Store booking or send to Google Sheets here if needed
-
-      document.getElementById("bookingId").innerText = currentBookingId;
       bookingPage.classList.add("hidden");
       qrPage.classList.remove("hidden");
     });
@@ -198,7 +198,7 @@
         payload.append("bookingId", currentBookingId);
         payload.append("screenshot", base64Image);
 
-        fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
+        fetch("https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec", {
           method: "POST",
           headers: {"Content-Type": "application/x-www-form-urlencoded"},
           body: payload.toString()
@@ -221,10 +221,25 @@
     function submitReturn(e) {
       e.preventDefault();
       const id = document.getElementById("returnId").value.trim();
-      if (id) {
-        alert(`Thanks! Return initiated for Booking ID: ${id}`);
-        // Optionally log this return or notify admin
-      }
+      if (!id) return alert("Please enter a Booking ID");
+
+      fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ checkId: id })
+      })
+      .then(res => res.text())
+      .then(response => {
+        if (response === "valid") {
+          alert(✅ Return initiated for Booking ID: ${id});
+        } else {
+          alert("❌ Invalid Booking ID. Please check your email and try again.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error validating Booking ID. Please try again later.");
+      });
     }
   </script>
 </body>
