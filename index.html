@@ -96,7 +96,7 @@
     <h2>🔁 Return Gear</h2>
     <form onsubmit="submitReturn(event)">
       <label>Enter Your Phone Number</label>
-      <input type="tel" id="returnPhone" maxlength="10" required />
+      <input type="tel" id="returnPhone" maxlength="10" pattern="[0-9]{10}" required />
       <button type="submit">Submit Return</button>
     </form>
   </div>
@@ -108,7 +108,7 @@
 
     quantity.addEventListener("change", () => {
       const q = quantity.value;
-      totalDisplay.innerText = q ? Total: ₹${q * 50} : "Total: ₹0";
+      totalDisplay.innerText = q ? `Total: ₹${q * 50}` : "Total: ₹0";
     });
 
     bookingForm.addEventListener("submit", function(e) {
@@ -123,7 +123,6 @@
       const formData = new URLSearchParams();
       formData.append("name", name);
       formData.append("phone", phone);
-      formData.append("equipment", "Pickleball");
       formData.append("quantity", qty);
 
       fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
@@ -132,7 +131,7 @@
         body: formData.toString()
       })
       .then(() => {
-        window.location.href = "https://rzp.io/rzp/SNXHbBh";
+        window.location.href = "https://rzp.io/rzp/SNXHbBh"; // Replace with dynamic link if needed
       })
       .catch(err => {
         console.error(err);
@@ -150,7 +149,7 @@
       const phone = document.getElementById("returnPhone").value.trim();
       if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
 
-      fetch(https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec?action=return&phone=${phone}, {
+      fetch(`https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec?action=return&phone=${phone}`, {
         method: "POST"
       })
       .then(res => res.text())
@@ -167,6 +166,6 @@
       });
     }
   </script>
-
 </body>
 </html>
+
