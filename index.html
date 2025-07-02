@@ -107,15 +107,15 @@
     const totalDisplay = document.getElementById("totalDisplay");
 
     const linkMap = {
-      "1": "https://rzp.io/rzp/iayuACfc",   // Replace with your actual link
-      "2": "https://rzp.io/rzp/SzaJ8gS",  // Replace with your actual link
-      "3": "https://rzp.io/rzp/W1nYTWv",  // Replace with your actual link
-      "4": "https://rzp.io/rzp/mRJTu0xp"   // Replace with your actual link
+      "1": "https://rzp.io/rzp/iayuACfc",
+      "2": "https://rzp.io/rzp/SzaJ8gS",
+      "3": "https://rzp.io/rzp/W1nYTWv",
+      "4": "https://rzp.io/rzp/mRJTu0xp"
     };
 
     quantity.addEventListener("change", () => {
       const q = quantity.value;
-      totalDisplay.innerText = q ? Total: ₹${q * 50} : "Total: ₹0";
+      totalDisplay.innerText = q ? `Total: ₹${q * 50}` : "Total: ₹0";
     });
 
     bookingForm.addEventListener("submit", function(e) {
@@ -130,8 +130,7 @@
       const formData = new URLSearchParams();
       formData.append("name", name);
       formData.append("phone", phone);
-      formData.append("equipment", "Pickleball");
-      formData.append("quantity", qty);
+      formData.append("quantity", qty);  // ✅ No "equipment" — matches App Script
 
       fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
         method: "POST",
@@ -161,7 +160,7 @@
       const phone = document.getElementById("returnPhone").value.trim();
       if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
 
-      fetch(https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec?action=return&phone=${phone}, {
+      fetch(`https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec?action=return&phone=${phone}`, {
         method: "POST"
       })
       .then(res => res.text())
