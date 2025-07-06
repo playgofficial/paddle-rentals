@@ -106,6 +106,8 @@
     const quantity = document.getElementById("quantity");
     const totalDisplay = document.getElementById("totalDisplay");
 
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec";
+
     quantity.addEventListener("change", () => {
       const q = quantity.value;
       totalDisplay.innerText = q ? `Total: ₹${q * 50}` : "Total: ₹0";
@@ -119,23 +121,40 @@
       const qty = quantity.value;
 
       if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
+      if (!qty) return alert("Please select quantity.");
 
-      const formData = new URLSearchParams();
-      formData.append("name", name);
-      formData.append("phone", phone);
-      formData.append("quantity", qty);
-
-      fetch("https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec", {
+      // Step 1: Log booking
+      const logData = new URLSearchParams({ name, phone, quantity: qty });
+      fetch(scriptURL, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData.toString()
+        body: logData.toString()
       })
       .then(() => {
-        window.location.href = "https://rzp.io/rzp/KuyNZda"; // Replace with dynamic link if needed
+        // Step 2: Generate payment link
+        const paymentData = new URLSearchParams({
+          action: "create_payment_link",
+          name,
+          phone,
+          quantity: qty
+        });
+        return fetch(scriptURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: paymentData.toString()
+        });
+      })
+      .then(res => res.text())
+      .then(url => {
+        if (url.startsWith("http")) {
+          window.location.href = url;
+        } else {
+          alert("Error generating payment link: " + url);
+        }
       })
       .catch(err => {
         console.error(err);
-        alert("Booking failed. Try again.");
+        alert("Something went wrong. Please try again.");
       });
     });
 
@@ -149,7 +168,7 @@
       const phone = document.getElementById("returnPhone").value.trim();
       if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
 
-      fetch(`https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec?action=return&phone=${phone}`, {
+      fetch(`${scriptURL}?action=return&phone=${phone}`, {
         method: "POST"
       })
       .then(res => res.text())
