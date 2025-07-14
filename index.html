@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pickleball Rental</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet"/>
+
+  <!-- ✅ Firebase v9.23 SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -101,12 +106,41 @@
     </form>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDi2-wsuW3JChEmZOytz1sEE3d1I6NZeQ8",
+      authDomain: "playg-80320.firebaseapp.com",
+      databaseURL: "https://playg-80320-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "playg-80320",
+      storageBucket: "playg-80320.appspot.com",
+      messagingSenderId: "40269456330",
+      appId: "1:40269456330:web:a5cf786b665d59e03ce533"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     const bookingForm = document.getElementById("bookingForm");
     const quantity = document.getElementById("quantity");
     const totalDisplay = document.getElementById("totalDisplay");
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwcRccye_pazR3XSD6VUSd3VM35GyZvR_ZTUNvlDg9C7rUNtdpShoZqLvKcur-6USG0/exec";
+    const functionURL = "https://us-central1-playg-80320.cloudfunctions.net/razorpayWebhook";
+
+    function createBooking(name, phone, qty) {
+      const amount = qty * 50;
+      const bookingRef = push(ref(db, "bookings"), {
+        name,
+        phone,
+        quantity: qty,
+        amount,
+        status: "pending",
+        createdAt: Date.now()
+      });
+      return bookingRef.key;
+    }
 
     quantity.addEventListener("change", () => {
       const q = quantity.value;
@@ -118,35 +152,22 @@
 
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
-      const qty = quantity.value;
+      const qty = parseInt(quantity.value);
 
       if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
       if (!qty) return alert("Please select quantity.");
 
-      // Step 1: Log booking
-      const logData = new URLSearchParams({ name, phone, quantity: qty });
-      fetch(scriptURL, {
+      const bookingId = createBooking(name, phone, qty);
+
+      fetch(functionURL, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: logData.toString()
-      })
-      .then(() => {
-        // Step 2: Generate payment link
-        const paymentData = new URLSearchParams({
-          action: "create_payment_link",
-          name,
-          phone,
-          quantity: qty
-        });
-        return fetch(scriptURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: paymentData.toString()
-        });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, quantity: qty })
       })
       .then(res => res.text())
       .then(url => {
         if (url.startsWith("http")) {
+          alert("Booking ID: " + bookingId);
           window.location.href = url;
         } else {
           alert("Error generating payment link: " + url);
@@ -154,7 +175,7 @@
       })
       .catch(err => {
         console.error(err);
-        alert("Something went wrong. Please try again.");
+        alert("Booking failed. Try again.");
       });
     });
 
@@ -163,12 +184,12 @@
       document.getElementById("returnPage").classList.remove("hidden");
     }
 
-    function submitReturn(e) {
+    window.submitReturn = function(e) {
       e.preventDefault();
       const phone = document.getElementById("returnPhone").value.trim();
       if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
 
-      fetch(`${scriptURL}?action=return&phone=${phone}`, {
+      fetch(`${functionURL}?action=return&phone=${phone}`, {
         method: "POST"
       })
       .then(res => res.text())
@@ -183,7 +204,7 @@
         console.error(err);
         alert("Error processing return.");
       });
-    }
+    };
   </script>
 </body>
 </html>
