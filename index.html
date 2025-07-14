@@ -6,7 +6,7 @@
   <title>Pickleball Rental</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet"/>
 
-  <!-- ✅ Firebase v9.23 SDKs -->
+  <!-- ✅ Firebase v9 SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 
@@ -127,7 +127,7 @@
     const quantity = document.getElementById("quantity");
     const totalDisplay = document.getElementById("totalDisplay");
 
-    const functionURL = "https://us-central1-playg-80320.cloudfunctions.net/razorpayWebhook";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzasEbOERJJcsJrZ8eFW_jj81_yt5O0OgTExwgHSRVRAH3QX3GUPig9R9qcxC1cRg6p/exec";
 
     function createBooking(name, phone, qty) {
       const amount = qty * 50;
@@ -159,10 +159,15 @@
 
       const bookingId = createBooking(name, phone, qty);
 
-      fetch(functionURL, {
+      fetch(scriptURL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, quantity: qty })
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          action: "create_payment_link",
+          name,
+          phone,
+          quantity: qty
+        }).toString()
       })
       .then(res => res.text())
       .then(url => {
@@ -189,7 +194,7 @@
       const phone = document.getElementById("returnPhone").value.trim();
       if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
 
-      fetch(`${functionURL}?action=return&phone=${phone}`, {
+      fetch(`${scriptURL}?action=return&phone=${phone}`, {
         method: "POST"
       })
       .then(res => res.text())
