@@ -1,12 +1,10 @@
-<!DOCTYPE html>
+      <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pickleball Rental</title>
+  <title>PLAY-G° Pickleball Rental</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet"/>
-
-  <!-- ✅ Firebase v9 SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 
@@ -14,202 +12,230 @@
     body {
       margin: 0;
       font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(-45deg, #ff3c00, #ff8800, #ff3c00, #ff6600);
-      background-size: 300% 300%;
-      animation: vibrantBG 12s ease infinite;
-      color: white;
-      text-align: center;
+      background: radial-gradient(circle at top left, #121212, #000000);
+      background-size: 200% 200%;
+      animation: bgPulse 10s ease infinite;
+      color: #fff;
     }
-    @keyframes vibrantBG {
+    @keyframes bgPulse {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
+    h1 {
+      font-size: 2.8rem;
+      margin-top: 2rem;
+      color: #ff6600;
+      text-shadow: 0 0 8px #ff6600;
+      text-align: center;
+    }
+    p {
+      text-align: center;
+      font-size: 1.1rem;
+      color: #ffb380;
+      margin-bottom: 2rem;
+    }
     .container {
-      max-width: 420px;
-      margin: 3rem auto;
+      background-color: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
       padding: 2rem;
-      background-color: rgba(255,255,255,0.08);
-      border-radius: 15px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      margin: 2rem auto;
+      max-width: 440px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(255, 130, 0, 0.4);
+      animation: fadeIn 1s ease;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #ffddcc;
     }
     input, select {
       width: 100%;
       padding: 12px;
-      margin-top: 0.8rem;
+      margin-top: 0.5rem;
       border: none;
       border-radius: 10px;
       font-size: 1rem;
-      background: rgba(255,255,255,0.9);
+      background-color: rgba(255,255,255,0.95);
       color: #333;
     }
     button {
-      margin-top: 1.2rem;
       width: 100%;
+      margin-top: 1.2rem;
       padding: 14px;
       border: none;
       border-radius: 10px;
+      background: linear-gradient(to right, #ff6600, #ff8800);
+      color: white;
       font-size: 1.1rem;
       font-weight: bold;
-      background-color: white;
-      color: #ff3c00;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     button:hover {
-      background-color: #ffd6c2;
+      transform: scale(1.03);
+      box-shadow: 0 0 12px #ff8800;
     }
     .note {
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      color: #fff9d4;
+      font-size: 0.95rem;
+      margin-top: 0.6rem;
+      color: #ffebc6;
+      font-style: italic;
+      text-align: center;
     }
     .hidden {
       display: none;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
 <body>
 
-  <h1 style="padding-top:2rem;">🏓 PLAY-G°</h1>
+  <h1>🏓 PLAY-G°</h1>
   <p>Rent your Pickleball gear hassle-free</p>
 
   <div class="container" id="bookingPage">
     <form id="bookingForm">
-      <label>Name</label>
+      <label for="name">Name</label>
       <input type="text" id="name" required />
 
-      <label>Phone Number</label>
-      <input type="tel" id="phone" maxlength="10" pattern="[0-9]{10}" required 
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" maxlength="10" pattern="[0-9]{10}" required
              oninput="this.value = this.value.slice(0, 10);" />
 
-      <label>Quantity</label>
+      <label for="quantity">Quantity</label>
       <select id="quantity" required>
         <option value="">-- Select --</option>
-        <option>1</option><option>2</option><option>3</option><option>4</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
       </select>
 
       <div class="note" id="totalDisplay">Total: ₹0</div>
 
-      <button type="submit">Proceed to Pay</button>
+      <button type="submit">🛒 Proceed to Pay</button>
     </form>
 
     <button onclick="showReturnPage()">🔁 Return Your Gear</button>
   </div>
 
   <div class="container hidden" id="returnPage">
-    <h2>🔁 Return Gear</h2>
+    <h2 style="color:#ff8800;">🔁 Return Gear</h2>
     <form onsubmit="submitReturn(event)">
-      <label>Enter Your Phone Number</label>
+      <label for="returnPhone">Enter Your Phone Number</label>
       <input type="tel" id="returnPhone" maxlength="10" pattern="[0-9]{10}" required />
       <button type="submit">Submit Return</button>
     </form>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDi2-wsuW3JChEmZOytz1sEE3d1I6NZeQ8",
-      authDomain: "playg-80320.firebaseapp.com",
-      databaseURL: "https://playg-80320-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "playg-80320",
-      storageBucket: "playg-80320.appspot.com",
-      messagingSenderId: "40269456330",
-      appId: "1:40269456330:web:a5cf786b665d59e03ce533"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDi2-wsuW3JChEmZOytz1sEE3d1I6NZeQ8",
+    authDomain: "playg-80320.firebaseapp.com",
+    databaseURL: "https://playg-80320-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "playg-80320",
+    storageBucket: "playg-80320.appspot.com",
+    messagingSenderId: "40269456330",
+    appId: "1:40269456330:web:a5cf786b665d59e03ce533"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-    const bookingForm = document.getElementById("bookingForm");
-    const quantity = document.getElementById("quantity");
-    const totalDisplay = document.getElementById("totalDisplay");
+  const bookingForm = document.getElementById("bookingForm");
+  const quantity = document.getElementById("quantity");
+  const totalDisplay = document.getElementById("totalDisplay");
+  const scriptURL = "https://script.google.com/macros/s/AKfycbzasEbOERJJcsJrZ8eFW_jj81_yt5O0OgTExwgHSRVRAH3QX3GUPig9R9qcxC1cRg6p/exec";
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzasEbOERJJcsJrZ8eFW_jj81_yt5O0OgTExwgHSRVRAH3QX3GUPig9R9qcxC1cRg6p/exec";
+  function createBooking(name, phone, qty) {
+    const amount = qty * 50;
+    push(ref(db, "bookings"), {
+      name,
+      phone,
+      quantity: qty,
+      amount,
+      status: "pending",
+      createdAt: Date.now()
+    });
+  }
 
-    function createBooking(name, phone, qty) {
-      const amount = qty * 50;
-      const bookingRef = push(ref(db, "bookings"), {
+  quantity.addEventListener("change", () => {
+    const q = parseInt(quantity.value);
+    totalDisplay.innerText = q ? `Total: ₹${q * 50}` : "Total: ₹0";
+  });
+
+  bookingForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const qty = parseInt(quantity.value);
+
+    if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
+    if (!qty) return alert("Please select quantity.");
+
+    createBooking(name, phone, qty);
+
+    fetch(scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        action: "create_payment_link",
         name,
         phone,
-        quantity: qty,
-        amount,
-        status: "pending",
-        createdAt: Date.now()
-      });
-      return bookingRef.key;
-    }
-
-    quantity.addEventListener("change", () => {
-      const q = quantity.value;
-      totalDisplay.innerText = q ? `Total: ₹${q * 50}` : "Total: ₹0";
+        quantity: qty
+      }).toString()
+    })
+    .then(res => res.text())
+    .then(url => {
+      if (url.startsWith("http")) {
+        window.location.href = url;
+      } else {
+        alert("Error generating payment link: " + url);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Booking failed. Try again.");
     });
+  });
 
-    bookingForm.addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const name = document.getElementById("name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const qty = parseInt(quantity.value);
-
-      if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
-      if (!qty) return alert("Please select quantity.");
-
-      const bookingId = createBooking(name, phone, qty);
-
-      fetch(scriptURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          action: "create_payment_link",
-          name,
-          phone,
-          quantity: qty
-        }).toString()
-      })
-      .then(res => res.text())
-      .then(url => {
-        if (url.startsWith("http")) {
-          alert("Booking ID: " + bookingId);
-          window.location.href = url;
-        } else {
-          alert("Error generating payment link: " + url);
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Booking failed. Try again.");
-      });
-    });
-
-    function showReturnPage() {
-      document.getElementById("bookingPage").classList.add("hidden");
-      document.getElementById("returnPage").classList.remove("hidden");
-    }
-
+  function showReturnPage() {
+    document.getElementById("bookingPage").classList.add("hidden");
+    document.getElementById("returnPage").classList.remove("hidden");
+  }
     window.submitReturn = function(e) {
       e.preventDefault();
       const phone = document.getElementById("returnPhone").value.trim();
-      if (phone.length !== 10) return alert("Enter a valid 10-digit phone number.");
 
-      fetch(`${scriptURL}?action=return&phone=${phone}`, {
-        method: "POST"
-      })
-      .then(res => res.text())
-      .then(resp => {
-        if (resp === "unlock") {
-          alert("✅ Return authorized. Locker unlocking...");
-        } else {
-          alert("❌ Phone number not found in active bookings.");
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Error processing return.");
-      });
+      if (phone.length !== 10 || !/^\d+$/.test(phone)) {
+        alert("⚠️ Enter a valid 10-digit phone number.");
+        return;
+      }
+
+      fetch(`${scriptURL}?action=return&phone=${phone}`, { method: "POST" })
+        .then(res => res.text())
+        .then(resp => {
+          if (resp === "unlock") {
+            alert("✅ Return authorized. Locker unlocking...");
+          } else {
+            alert("❌ No booking found for this number.");
+          }
+        })
+        .catch(err => {
+          console.error("Return error:", err);
+          alert("🚨 Error during return.");
+        });
     };
   </script>
+
 </body>
 </html>
